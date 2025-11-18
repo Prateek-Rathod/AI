@@ -1,0 +1,83 @@
+# Dependencies
+node_modules/
+
+# Build output
+.next/
+.next/cache/
+out/
+dist/
+
+# Env files (never commit secrets)
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+*.env
+
+# Prisma
+prisma/dev.db
+prisma/dev.db-journal
+prisma/*.db
+prisma/*.db-journal
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+debug.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# TypeScript
+*.tsbuildinfo
+
+# Turbo
+.turbo/
+turbo.json
+turbo-lock.json
+
+# Next.js static export
+export/
+
+# Clerk cache
+.clerk/
+
+# Temporary uploads
+uploads/
+tmp/
+
+# Cache / temp
+.cache/
+temp/
+*.tmp
+*.log
+
+# Redis dump
+dump.rdb
+
+# Local build artifacts
+*.local
+
+# Lock files (optional)
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+
+# Lint cache
+eslintcache
+
+# Coverage
+coverage/
+
+# Generated assets
+public/.well-known/
