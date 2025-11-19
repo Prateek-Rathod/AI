@@ -3,7 +3,6 @@ import crypto from "crypto";
 import axios from "axios";
 import Account from "@/lib/account";
 import { db } from "@/server/db";
-import { waitUntil } from "@vercel/functions";
 
 const AURINKO_SIGNING_SECRET = process.env.AURINKO_SIGNING_SECRET;
 
@@ -11,6 +10,7 @@ export const POST = async (req: NextRequest) => {
     console.log("POST request received");
     const query = req.nextUrl.searchParams;
     const validationToken = query.get("validationToken");
+
     if (validationToken) {
         return new Response(validationToken, { status: 200 });
     }
@@ -32,6 +32,7 @@ export const POST = async (req: NextRequest) => {
     if (signature !== expectedSignature) {
         return new Response("Unauthorized", { status: 401 });
     }
+
     type AurinkoNotification = {
         subscription: number;
         resource: string;
@@ -47,20 +48,32 @@ export const POST = async (req: NextRequest) => {
 
     const payload = JSON.parse(body) as AurinkoNotification;
     console.log("Received notification:", JSON.stringify(payload, null, 2));
+
     const account = await db.account.findUnique({
         where: {
             id: payload.accountId.toString()
         }
-    })
+    });
+
     if (!account) {
         return new Response("Account not found", { status: 404 });
     }
-    const acc = new Account(account.token)
-    waitUntil(acc.syncEmails().then(() => {
-        console.log("Synced emails")
-    }))
 
-    // Process the notification payload as needed
+    const acc = new Account(account.token);
+
+    // If running on Edge, use req.waitUntil
+    if (typeof req.waitUntil === "function") {
+        req.waitUntil(
+            acc.syncEmails()
+                .then(() => console.log("Synced emails"))
+                .catch((e) => console.error("Sync error:", e))
+        );
+    } else {
+        // Node.js runtime fallback
+        acc.syncEmails()
+            .then(() => console.log("Synced emails"))
+            .catch((e) => console.error("Sync error:", e));
+    }
 
     return new Response(null, { status: 200 });
 };
